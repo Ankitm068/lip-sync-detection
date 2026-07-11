@@ -1,0 +1,64 @@
+[project]
+name = "lip-sync-detection"
+version = "0.1.0"
+description = "Research project for lip-sync mismatch detection and video interview fraud detection using computer vision and audio analysis."
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    # ==========================
+    # Computer Vision
+    # ==========================
+    "opencv-python>=4.11.0",
+    "mediapipe>=0.10.21",
+    "numpy>=2.2.0",
+    "scipy>=1.15.0",
+    "pillow>=11.0.0",
+    # ==========================
+    # Deep Learning
+    # ==========================
+    "torch>=2.7.0",
+    "torchvision>=0.22.0",
+    "torchaudio>=2.7.0",
+    # ==========================
+    # Hugging Face
+    # ==========================
+    "transformers>=4.53.0",
+    "datasets>=3.6.0",
+    "accelerate>=1.8.0",
+    "huggingface-hub>=0.33.0",
+    # ==========================
+    # Audio Processing
+    # ==========================
+    "librosa>=0.11.0",
+    "soundfile>=0.13.0",
+    "ffmpeg-python>=0.2.0",
+    # ==========================
+    # Video Utilities
+    # ==========================
+    "imageio>=2.37.0",
+    "imageio-ffmpeg>=0.6.0",
+    # ==========================
+    # Data Science
+    # ==========================
+    "pandas>=2.3.0",
+    "scikit-learn>=1.7.0",
+    # ==========================
+    # Visualization
+    # ==========================
+    "matplotlib>=3.10.0",
+    "plotly>=6.2.0",
+    # ==========================
+    # Utilities
+    # ==========================
+    "tqdm>=4.67.0",
+    "rich>=14.0.0",
+    "python-dotenv>=1.1.0",
+    "pyyaml>=6.0.2",
+    # ==========================
+    # REST API
+    # ==========================
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "python-multipart>=0.0.20",
+]

@@ -1,0 +1,10 @@
+{
+  "lip_sync_score": 36,
+  "verdict": "Likely Fake / Major Desync",
+  "metrics": {
+    "pearson": 0.36050973495561783,
+    "cosine_similarity": 0.854959759347637,
+    "rmse": 0.2803839588437691
+  },
+  "temporal_lag_ms": 0.0
+}

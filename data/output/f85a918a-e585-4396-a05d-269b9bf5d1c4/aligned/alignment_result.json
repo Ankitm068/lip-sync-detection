@@ -1,0 +1,8 @@
+{
+  "best_lag_ms": 1000.0,
+  "correlation_score": 0.22544890005852744,
+  "speech_rate_hz": 30.0,
+  "max_lag_seconds": 1.0,
+  "aligned_length": 720,
+  "n_missing_mouth_frames": 0
+}

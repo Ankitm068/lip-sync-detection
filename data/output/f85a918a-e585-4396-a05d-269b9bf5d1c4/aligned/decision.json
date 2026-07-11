@@ -1,0 +1,8 @@
+{
+  "lip_sync_score": 12,
+  "verdict": "NOT_SYNCED",
+  "reason": "Lip Sync Score indicates major desynchronization.",
+  "warnings": [
+    "Best lag (+1000.0 ms) hit the edge of the search window (\u00b11000 ms). No genuine alignment peak was found \u2014 the NCC search ran off the boundary, which strongly indicates the audio and video tracks are not correlated. Score penalised by 50%."
+  ]
+}

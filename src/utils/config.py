@@ -29,9 +29,9 @@ SPEECH_ENVELOPE_SMOOTH_MS = 250.0
 #   mouth_blended = (1 - w) * mouth + w * mouth_delta_normalised
 # The derivative captures jaw-opening *onsets* that align better with
 # speech burst timing than the slow absolute position does.
-MOUTH_DELTA_WEIGHT = 0.0
+MOUTH_DELTA_WEIGHT = 0.45
 
 # ── Lag search ───────────────────────────────────────────────────────────────
 # How far to search, in either direction, for the audio/video offset that
 # best aligns the two signals.
-MAX_LAG_SECONDS = 1.0
+MAX_LAG_SECONDS = 0.4

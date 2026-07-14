@@ -2,8 +2,10 @@ from pathlib import Path
 
 import librosa
 
-
 from src.audio.audio_loader import AudioLoader
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class AudioEnergyExtractor:
@@ -40,12 +42,19 @@ class AudioEnergyExtractor:
         # slightly, which smooths the envelope without blurring it much.
         frame_length = hop_length * 2
 
+        logger.debug(
+            "Computing RMS energy: hop_length=%d frame_length=%d @ %.1f Hz",
+            hop_length, frame_length, self.frame_rate_hz,
+        )
+
         rms = librosa.feature.rms(
             y=audio,
             frame_length=frame_length,
             hop_length=hop_length,
             center=True,
         )[0]
+
+        logger.debug("RMS frames: %d  min/max: %.4f/%.4f", len(rms), rms.min(), rms.max())
 
         return rms
 
@@ -58,5 +67,5 @@ if __name__ == "__main__":
 
     energy = extractor.extract()
 
-    print(f"Frames : {len(energy)}")
-    print(f"Min/Max : {energy.min():.4f} / {energy.max():.4f}")
+    logger.info("Frames : %d", len(energy))
+    logger.info("Min/Max : %.4f / %.4f", energy.min(), energy.max())

@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import cv2
+from tqdm import tqdm
 
 from src.utils.logger import get_logger
 
@@ -38,25 +39,26 @@ class FrameExtractor:
 
         frame_count = 0
 
-        logger.info(f"Extracting Frames from {self.video_path}...")
+        logger.info("Extracting frames from: %s", self.video_path.name)
 
-        while True:
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or None
 
-            success, frame = cap.read()
+        with tqdm(
+            total=total_frames,
+            desc="  Frames",
+            unit="fr",
+            ncols=80,
+            leave=False,
+        ) as pbar:
+            while True:
+                success, frame = cap.read()
+                if not success:
+                    break
 
-            if not success:
-                break
-
-            frame_name = f"frame_{frame_count:06d}.jpg"
-
-            frame_path = self.output_dir / frame_name
-
-            cv2.imwrite(str(frame_path), frame)
-
-            frame_count += 1
-
-            if frame_count % 100 == 0:
-                logger.info(f"{frame_count} frames saved...")
+                frame_path = self.output_dir / f"frame_{frame_count:06d}.jpg"
+                cv2.imwrite(str(frame_path), frame)
+                frame_count += 1
+                pbar.update(1)
 
         cap.release()
 
@@ -85,9 +87,9 @@ class FrameExtractor:
 
 if __name__ == "__main__":
 
-    VIDEO_PATH = "data/videos/vid1.mp4"
+    VIDEO_PATH = "data/videos/v3.mp4"
 
-    OUTPUT_DIR = "data/frames"
+    OUTPUT_DIR = "data/frames/v3/"
 
     extractor = FrameExtractor(
         video_path=VIDEO_PATH,

@@ -29,7 +29,10 @@ logger = get_logger(__name__)
 
 async def step_extract_frames(video_path: str, frames_dir: str) -> tuple[float, int]:
     """Phase 1a — Extract every video frame as .jpg, record FPS."""
-    extractor = FrameExtractor(video_path=video_path, output_dir=frames_dir)
+    extractor = FrameExtractor(
+        video_path=video_path,
+        output_dir=frames_dir,
+    )
     fps, frame_count = await asyncio.to_thread(extractor.extract_frames)
     return fps, frame_count
 

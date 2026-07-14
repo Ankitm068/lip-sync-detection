@@ -1,3 +1,13 @@
+import os
+
+# ── Numba JIT bypass ───────────────────────────────────────────────────────────
+# Windows Application Control policy blocks numba's compiled _dispatcher.pyd DLL.
+# Setting NUMBA_DISABLE_JIT=1 makes numba skip JIT compilation and run in
+# pure-Python fallback mode. librosa works correctly either way.
+# Must be set BEFORE any librosa/numba import.
+if not os.environ.get("NUMBA_DISABLE_JIT"):
+    os.environ["NUMBA_DISABLE_JIT"] = "1"
+
 """
 main.py — Simplified Lip-Sync Detection API
 ==========================================
@@ -17,7 +27,10 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from src.utils.logger import get_logger
 from src.pipeline import run_pipeline
+
+logger = get_logger(__name__)
 
 # ── Allowed video extensions ───────────────────────────────────────────────────
 ALLOWED_EXTENSIONS = {".mp4", ".avi", ".mov", ".mkv", ".webm"}
@@ -89,6 +102,8 @@ async def upload_video(
     contents = await file.read()
     video_path.write_bytes(contents)
 
+    logger.info("Video uploaded: id=%s filename=%s size=%d bytes", video_id, file.filename, len(contents))
+
     return UploadResponse(
         video_id=video_id,
         message=f"Video uploaded successfully. You can now call POST /process/{video_id}"
@@ -111,6 +126,7 @@ async def process_video(video_id: str) -> ProcessResponse:
         raise HTTPException(status_code=404, detail=f"Video '{video_id}' not found.")
 
     video_path = matching_files[0]
+    logger.info("Processing request: video_id=%s path=%s", video_id, video_path)
 
     try:
         # Run the pipeline (this takes 30+ seconds)
@@ -122,7 +138,9 @@ async def process_video(video_id: str) -> ProcessResponse:
             speech_method="mel_band",
             job_id=video_id
         )
+        logger.info("Process complete: video_id=%s verdict=%s", video_id, result.get('verdict'))
         return ProcessResponse(**result)
 
     except Exception as exc:
+        logger.error("Pipeline error for video_id=%s: %s", video_id, exc, exc_info=True)
         raise HTTPException(status_code=500, detail=str(exc))

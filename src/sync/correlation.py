@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class CorrelationAnalyzer:
     """
@@ -152,8 +156,8 @@ class CorrelationAnalyzer:
             verdict = "Excellent Sync"
         elif lip_sync_score >= 65:
             verdict = "Good Sync"
-        elif lip_sync_score >= 45:
-            verdict = "Possible Desync"
+        elif lip_sync_score >= 35:
+            verdict = "likely Sync"
         else:
             verdict = "Likely Fake / Major Desync"
 
@@ -165,16 +169,14 @@ class CorrelationAnalyzer:
 
     @staticmethod
     def print_report(metrics: dict, lag_ms: float, score: int, verdict: str):
-        """Console summary, useful when running the script directly."""
-        print("\nLip Sync Analysis")
-        print("--------------------------")
-        print(f"Pearson Correlation : {metrics['pearson']:.2f}")
-        print(f"Cosine Similarity   : {metrics['cosine']:.2f}")
-        print(f"RMSE                : {metrics['rmse']:.2f}")
-        print(f"Temporal Lag        : {lag_ms:+.0f} ms")
-        print()
-        print(f"Lip Sync Score      : {score} / 100")
-        print(f"Verdict             : {verdict}")
+        """Log a summary of the correlation results."""
+        logger.info("Lip Sync Analysis")
+        logger.info("Pearson Correlation : %.2f", metrics['pearson'])
+        logger.info("Cosine Similarity   : %.2f", metrics['cosine'])
+        logger.info("RMSE                : %.2f", metrics['rmse'])
+        logger.info("Temporal Lag        : %+.0f ms", lag_ms)
+        logger.info("Lip Sync Score      : %d / 100", score)
+        logger.info("Verdict             : %s", verdict)
 
     def save_report(self, metrics: dict, lag_ms: float, score: int, verdict: str) -> dict:
         """Write the same numbers shown in print_report() to JSON."""

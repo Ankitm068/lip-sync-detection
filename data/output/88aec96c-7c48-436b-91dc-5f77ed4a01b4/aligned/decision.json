@@ -1,6 +1,0 @@
-{
-  "lip_sync_score": 29,
-  "verdict": "UNCERTAIN",
-  "reason": "Lip Sync Score is low, but high cosine similarity and small temporal lag suggest uncertainty rather than definitive desynchronization.",
-  "warnings": []
-}

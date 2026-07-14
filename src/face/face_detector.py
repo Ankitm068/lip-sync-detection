@@ -5,6 +5,10 @@ import mediapipe as mp
 from mediapipe import tasks
 from tqdm import tqdm
 
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 # Aliases for the new Tasks API
 MpFaceDetector    = tasks.vision.FaceDetector
 FaceDetectorOptions = tasks.vision.FaceDetectorOptions
@@ -60,7 +64,7 @@ class FaceDetector:
                 f"No images found in {self.input_dir}"
             )
 
-        print(f"\nProcessing {len(image_paths)} frames...\n")
+        logger.info("Processing %d frames from %s", len(image_paths), self.input_dir)
 
         detected_faces = 0
 
@@ -102,9 +106,9 @@ class FaceDetector:
             output_path = self.output_dir / image_path.name
             cv2.imwrite(str(output_path), image)
 
-        print("\nFinished")
-        print(f"Frames Processed : {len(image_paths)}")
-        print(f"Faces Detected   : {detected_faces}")
+        logger.info("Finished face detection")
+        logger.info("Frames Processed : %d", len(image_paths))
+        logger.info("Faces Detected   : %d", detected_faces)
 
         self.face_detector.close()
 

@@ -7,6 +7,10 @@ from scipy.interpolate import interp1d
 from scipy.signal import correlate, medfilt, savgol_filter
 from sklearn.preprocessing import MinMaxScaler
 
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class SignalAlignment:
     """
@@ -101,10 +105,10 @@ class SignalAlignment:
             )
 
         if n_missing:
-            print(
-                f"\nWarning: {n_missing}/{len(mouth_signal)} frames "
-                "had no face/mouth detected. Interpolating across "
-                "gaps instead of treating them as a closed mouth."
+            logger.warning(
+                "%d/%d frames had no face/mouth detected. "
+                "Interpolating across gaps instead of treating them as a closed mouth.",
+                n_missing, len(mouth_signal),
             )
             idx = np.arange(len(mouth_signal))
             mouth_signal = np.interp(idx, idx[~missing], mouth_signal[~missing])
@@ -151,9 +155,9 @@ class SignalAlignment:
         mouth_resampled = mouth_interp(shared_times)
         speech_resampled = speech_interp(shared_times)
 
-        print(
-            f"\nResampled both signals to {len(shared_times)} samples "
-            f"@ {self.speech_rate_hz:.3f} Hz"
+        logger.debug(
+            "Resampled both signals to %d samples @ %.3f Hz",
+            len(shared_times), self.speech_rate_hz,
         )
 
         return mouth_resampled, speech_resampled
@@ -377,10 +381,9 @@ class SignalAlignment:
     def process(self):
         # 1. Load
         mouth_signal, speech_signal = self.load_data()
-        print("\nOriginal Signal Lengths")
-        print("-------------------------")
-        print(f"Mouth  : {len(mouth_signal)} frames @ {self.video_fps:.3f} fps")
-        print(f"Speech : {len(speech_signal)} frames @ {self.speech_rate_hz:.3f} Hz")
+        logger.debug("Original Signal Lengths")
+        logger.debug("Mouth  : %d frames @ %.3f fps", len(mouth_signal), self.video_fps)
+        logger.debug("Speech : %d frames @ %.3f Hz", len(speech_signal), self.speech_rate_hz)
 
         # 2. Handle missing mouth frames
         mouth_signal, n_missing = self.handle_missing_frames(mouth_signal)
@@ -404,10 +407,10 @@ class SignalAlignment:
         #     better with speech burst timing than absolute position alone.
         mouth_signal = self.blend_mouth_with_delta(mouth_signal)
 
-        print(f"\nSignal Processing")
-        print("-------------------------")
-        print(f"Speech envelope smooth : {self.speech_envelope_smooth_ms:.0f} ms window")
-        print(f"Mouth delta blend      : {self.mouth_delta_weight:.0%} delta weight")
+        logger.debug(
+            "Signal processing — speech smooth: %.0f ms  mouth delta weight: %.0f%%",
+            self.speech_envelope_smooth_ms, self.mouth_delta_weight * 100,
+        )
 
         # 6. Cross-correlate to find the best lag
         max_lag_samples = int(round(self.max_lag_seconds * self.speech_rate_hz))
@@ -415,29 +418,50 @@ class SignalAlignment:
             mouth_signal, speech_signal, max_lag_samples
         )
 
-        print("\nLag Search (NCC)")
-        print("-------------------------")
-        print(f"Searched         : +/-{self.max_lag_seconds * 1000:.0f} ms")
-        print(f"Best Lag         : {(best_lag / self.speech_rate_hz) * 1000:+.1f} ms")
-        print(f"Best Correlation : {best_corr:.4f}")
-        print(
-            "(positive lag = speech trails the mouth movement; "
-            "negative lag = speech leads it)"
+        logger.info(
+            "Lag search (NCC) ±%.0f ms → best lag: %+.1f ms  NCC: %.4f",
+            self.max_lag_seconds * 1000,
+            (best_lag / self.speech_rate_hz) * 1000,
+            best_corr,
         )
 
         # 7. Apply the lag to the same smoothed, blended signals used
         #    for the correlation search so the saved output matches what
         #    was actually aligned.
-        mouth_aligned, speech_aligned = self.apply_lag(mouth_signal, speech_signal, best_lag)
+        best_lag_ms = (best_lag / self.speech_rate_hz) * 1000
+
+        MAX_ACCEPTABLE_LAG_MS = 350
+
+        if abs(best_lag_ms) <= MAX_ACCEPTABLE_LAG_MS:
+
+            logger.debug("Lag %.1f ms is within acceptable range — applying correction.", best_lag_ms)
+
+            mouth_aligned, speech_aligned = self.apply_lag(
+                mouth_signal,
+                speech_signal,
+                best_lag,
+            )
+
+            lag_applied = True
+
+        else:
+
+            logger.warning(
+                "Lag %.1f ms exceeds %d ms — skipping lag correction.",
+                best_lag_ms, MAX_ACCEPTABLE_LAG_MS,
+            )
+
+            mouth_aligned = mouth_signal
+            speech_aligned = speech_signal
+
+            lag_applied = False
 
         # 8. Save results
         best_lag_ms = self.save_results(
             mouth_aligned, speech_aligned, best_lag, best_corr, n_missing
         )
 
-        print("\nAlignment Complete")
-        print("-------------------------")
-        print(f"Aligned Length : {len(mouth_aligned)}")
+        logger.info("Alignment complete — aligned length: %d samples", len(mouth_aligned))
 
         return mouth_aligned, speech_aligned, best_lag_ms
 

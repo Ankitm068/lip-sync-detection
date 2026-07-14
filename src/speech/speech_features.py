@@ -5,6 +5,9 @@ import torch
 
 # pyrefly: ignore [missing-import]
 from src.speech.wav2vec_model import Wav2VecModel
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class SpeechFeatureExtractor:
@@ -38,9 +41,7 @@ class SpeechFeatureExtractor:
 
         embeddings = outputs.last_hidden_state
 
-        print(
-            f"Embedding Shape : {embeddings.shape}"
-        )
+        logger.debug("Embedding Shape : %s", tuple(embeddings.shape))
 
         return embeddings
 

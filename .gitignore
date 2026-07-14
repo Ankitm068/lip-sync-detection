@@ -1,10 +1,60 @@
-# Python-generated files
+# ── Python generated ──────────────────────────────────────────────────────────
 __pycache__/
 *.py[oc]
+*.pyd
 build/
 dist/
 wheels/
-*.egg-info
+*.egg-info/
+.eggs/
 
-# Virtual environments
-.venv
+# ── Virtual environments ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Generated runtime data (never commit videos, frames, or audio) ────────────
+data/videos/
+data/frames/
+data/audio/
+data/output/
+
+# Keep the data/ folder structure tracked with .gitkeep files
+!data/.gitkeep
+!data/videos/.gitkeep
+!data/frames/.gitkeep
+!data/audio/.gitkeep
+!data/output/.gitkeep
+
+# ── ML Models (large binaries — download separately) ──────────────────────────
+models/*.tflite
+models/*.task
+models/*.bin
+models/*.pt
+models/*.pth
+
+# Keep the models/ folder tracked
+!models/.gitkeep
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+logs.zip
+
+# ── Environment / secrets ──────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── IDE & OS ──────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.user
+.DS_Store
+Thumbs.db
+
+# ── Temporary / scratch ────────────────────────────────────────────────────────
+audio_temp.py
+*.tmp
+*.bak

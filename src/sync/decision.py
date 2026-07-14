@@ -1,6 +1,10 @@
 import json
 from pathlib import Path
 
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class SyncDecision:
     """
@@ -139,19 +143,17 @@ class SyncDecision:
         }
 
     def report(self):
-        """Print the verdict + warnings, and return the same dict for saving."""
+        """Log the verdict + warnings, and return the same dict for saving."""
         result = self.classify()
 
-        print("\nSync Decision")
-        print("-------------------------")
-        print(f"Lip Sync Score : {result['lip_sync_score']}")
-        print(f"Verdict        : {result['verdict']}")
-        print(f"Reason         : {result['reason']}")
+        logger.info("Sync Decision")
+        logger.info("Lip Sync Score : %s", result['lip_sync_score'])
+        logger.info("Verdict        : %s", result['verdict'])
+        logger.info("Reason         : %s", result['reason'])
 
         if result["warnings"]:
-            print("Warnings       :")
             for w in result["warnings"]:
-                print(f"  - {w}")
+                logger.warning("Decision warning: %s", w)
 
         return result
 
@@ -181,4 +183,4 @@ if __name__ == "__main__":
     with open(output_path, "w") as f:
         json.dump(result, f, indent=2)
 
-    print(f"\nDecision Saved To : {output_path}")
+    logger.info("Decision Saved To : %s", output_path)

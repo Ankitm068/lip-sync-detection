@@ -2,7 +2,9 @@ from pathlib import Path
 import imageio_ffmpeg
 import ffmpeg
 
-# from src.video import VideoLoader
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class AudioExtractor:
@@ -23,6 +25,8 @@ class AudioExtractor:
                 f"Video not found: {self.video_path}"
             )
 
+        logger.debug("Extracting audio from %s → %s", self.video_path, self.output_audio)
+
         # Use imageio_ffmpeg's bundled binary — works in any terminal
         # without requiring FFmpeg to be installed system-wide.
         ffmpeg_cmd = imageio_ffmpeg.get_ffmpeg_exe()
@@ -41,8 +45,7 @@ class AudioExtractor:
             .run(cmd=ffmpeg_cmd, quiet=True)
         )
 
-        print("Audio extracted successfully.")
-        print(self.output_audio)
+        logger.info("Audio extracted successfully → %s", self.output_audio)
 
 
 if __name__ == "__main__":

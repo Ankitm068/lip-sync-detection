@@ -1,6 +1,10 @@
 from transformers import Wav2Vec2Model
 from transformers import Wav2Vec2Processor
 
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class Wav2VecModel:
 
@@ -9,7 +13,7 @@ class Wav2VecModel:
         model_name="facebook/wav2vec2-base-960h",
     ):
 
-        print("Loading wav2vec 2.0...")
+        logger.info("Loading wav2vec 2.0...")
 
         self.processor = Wav2Vec2Processor.from_pretrained(
             model_name
@@ -21,4 +25,4 @@ class Wav2VecModel:
 
         self.model.eval()
 
-        print("Model Loaded Successfully")
+        logger.info("Model Loaded Successfully")

@@ -4,6 +4,9 @@ import librosa
 import numpy as np
 
 from src.audio.audio_loader import AudioLoader
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -74,13 +77,20 @@ class MelBandEnergyExtractor:
             Per-frame log power in the speech band, in dB, at
             `frame_rate_hz`. Values are clamped to [_DB_FLOOR, 0] dB.
         """
+        logger.info("Extracting mel-band energy from: %s", self.audio_path.name)
         loader = AudioLoader(self.audio_path)
         audio, sample_rate = loader.load()
+        logger.info("Audio loaded — %.1f s @ %d Hz", len(audio) / sample_rate, sample_rate)
 
       
         hop_length   = int(round(sample_rate / self.frame_rate_hz))
         frame_length = _N_FFT                 # ~64 ms analysis window
         fmax         = sample_rate / 2
+
+        logger.debug(
+            "Mel spectrogram: hop=%d n_fft=%d fmax=%.0f Hz",
+            hop_length, frame_length, fmax,
+        )
 
         # ── Mel spectrogram ───────────────────────────────────────────
         # Shape: (n_mels, n_frames)  — power (amplitude²) in each bin.
@@ -107,6 +117,11 @@ class MelBandEnergyExtractor:
         lo = max(0, min(lo, _N_MELS - 1))
         hi = max(lo + 1, min(hi, _N_MELS))
 
+        logger.debug(
+            "Speech band: %.0f–%.0f Hz → mel bins [%d:%d]",
+            self.freq_lo_hz, self.freq_hi_hz, lo, hi,
+        )
+
         band = mel_spec[lo:hi, :]          # shape: (n_band_bins, n_frames)
 
         # ── Sum power across selected bins ────────────────────────────
@@ -120,6 +135,11 @@ class MelBandEnergyExtractor:
             top_db=abs(_DB_FLOOR),
         )
 
+        logger.debug(
+            "Mel-band frames: %d  min/max: %.2f / %.2f dB",
+            len(band_db), band_db.min(), band_db.max(),
+        )
+
         return band_db
 
 
@@ -131,5 +151,5 @@ if __name__ == "__main__":
 
     signal = extractor.extract()
 
-    print(f"Frames   : {len(signal)}")
-    print(f"Min / Max: {signal.min():.2f} dB / {signal.max():.2f} dB")
+    logger.info("Frames   : %d", len(signal))
+    logger.info("Min / Max: %.2f dB / %.2f dB", signal.min(), signal.max())

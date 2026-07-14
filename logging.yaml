@@ -1,0 +1,141 @@
+# logging.yaml — Lip-Sync Detection Pipeline
+#
+# Loaded by src/utils/logger.py at startup via logging.config.dictConfig().
+# The file handler's 'filename' key is patched at runtime to point to
+# logs/lip_sync.log relative to the current working directory.
+#
+# To change the log level project-wide, edit the root → level value below.
+# To silence a noisy third-party library, add it to the 'loggers' section
+# with propagate: False and a higher level, e.g.:
+#
+#   mediapipe:
+#       level: WARNING
+#       handlers: []
+#       propagate: False
+
+version: 1
+disable_existing_loggers: False
+
+# ---------------------------------------------------------------------------
+# Formatters
+# ---------------------------------------------------------------------------
+formatters:
+    standard:
+        format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s - [in %(pathname)s:%(lineno)d %(funcName)s]"
+        datefmt: "%Y-%m-%d %H:%M:%S"
+
+    brief:
+        # Shorter format for the console — keeps terminal output readable.
+        format: "%(asctime)s - %(levelname)-8s - %(name)s - %(message)s"
+        datefmt: "%H:%M:%S"
+
+# ---------------------------------------------------------------------------
+# Handlers
+# ---------------------------------------------------------------------------
+handlers:
+    console:
+        class: logging.StreamHandler
+        formatter: brief
+        level: INFO
+        stream: ext://sys.stdout
+
+    file:
+        class: logging.FileHandler
+        formatter: standard
+        level: DEBUG
+        # 'filename' is overwritten at runtime by src/utils/logger.py
+        filename: logs/lip_sync.log
+        encoding: utf-8
+        mode: a          # append so logs persist across restarts
+
+# ---------------------------------------------------------------------------
+# Module-level loggers
+# ---------------------------------------------------------------------------
+loggers:
+    # Pipeline orchestrator
+    src.pipeline:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    # Audio subsystem
+    src.audio.audio_loader:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    src.audio.audio_extractor:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    src.audio.audio_energy:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    src.audio.mel_spectrogram:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    # Face / mouth subsystem
+    src.face.face_detector:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    src.face.face_mesh:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    src.face.mouth_features:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    # Speech subsystem
+    src.speech.speech_signal:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    src.speech.speech_features:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    # Sync subsystem
+    src.sync.signal_alignment:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    src.sync.correlation:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    src.sync.decision:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    # Video subsystem
+    src.video.frame_extractor:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+    src.video.video_loader:
+        handlers: [console, file]
+        level: DEBUG
+        propagate: False
+
+# ---------------------------------------------------------------------------
+# Root logger — catches anything not matched above (e.g. FastAPI, uvicorn)
+# ---------------------------------------------------------------------------
+root:
+    handlers: [console]
+    level: INFO

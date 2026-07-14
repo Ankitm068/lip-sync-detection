@@ -1,6 +1,10 @@
 from pathlib import Path
 import cv2
 
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class VideoLoader:
     """
@@ -34,7 +38,7 @@ class VideoLoader:
         }
 
     def display_video(self):
-        print("\nPress 'Q' to quit.\n")
+        logger.info("Starting video preview — press 'Q' to quit.")
 
         while True:
             success, frame = self.cap.read()
@@ -62,14 +66,14 @@ if __name__ == "__main__":
 
     info = loader.get_video_info()
 
-    print("=" * 45)
-    print("VIDEO INFORMATION")
-    print("=" * 45)
+    logger.info("-" * 45)
+    logger.info("VIDEO INFORMATION")
+    logger.info("-" * 45)
 
     for key, value in info.items():
-        print(f"{key:<15}: {value}")
+        logger.info("%s: %s", key, value)
 
-    print("=" * 45)
+    logger.info("-" * 45)
 
     loader.display_video()
 

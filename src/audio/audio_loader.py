@@ -1,6 +1,10 @@
 from pathlib import Path
 import librosa
 
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class AudioLoader:
     """
@@ -16,6 +20,7 @@ class AudioLoader:
             )
 
     def load(self):
+        logger.debug("Loading audio: %s", self.audio_path)
 
         audio, sample_rate = librosa.load(
             self.audio_path,
@@ -23,8 +28,8 @@ class AudioLoader:
             mono=True
         )
 
-        print(f"Sample Rate : {sample_rate}")
-        print(f"Samples     : {len(audio)}")
+        logger.debug("Sample Rate : %d", sample_rate)
+        logger.debug("Samples     : %d", len(audio))
 
         return audio, sample_rate
 
